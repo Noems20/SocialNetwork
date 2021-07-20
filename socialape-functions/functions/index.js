@@ -20,7 +20,7 @@ app.post('/signup', signUp);
 //  LOGIN
 app.post('/login', login);
 // UPLOAD IMAGE
-app.post('/user/image', uploadImage);
+app.post('/user/image', FBAuth, uploadImage);
 
 // https://baseurl.com/api/ -> ESTO ES LO QUE HACE
 exports.api = functions.https.onRequest(app);
