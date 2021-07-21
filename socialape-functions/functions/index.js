@@ -5,7 +5,13 @@ const app = require('express')();
 // const app = express();
 
 const { getAllScreams, postOneScream } = require('./handlers/screams');
-const { signUp, login, uploadImage } = require('./handlers/users');
+const {
+  signUp,
+  login,
+  uploadImage,
+  addUserDetails,
+  getAuthenticatedUser,
+} = require('./handlers/users');
 const FBAuth = require('./util/fbAuth');
 
 // --------------------------------- SCREAM ROUTES ---------------
@@ -13,6 +19,10 @@ const FBAuth = require('./util/fbAuth');
 app.get('/screams', getAllScreams);
 //  POST SCREAM
 app.post('/scream', FBAuth, postOneScream);
+// ADD USER DETAILS
+app.post('/user', FBAuth, addUserDetails);
+// ADD USER DETAILS
+app.get('/user', FBAuth, getAuthenticatedUser);
 
 // --------------------------------- USER ROUTES ---------------
 //  CREATE USER

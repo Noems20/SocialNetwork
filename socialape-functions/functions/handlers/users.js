@@ -5,7 +5,11 @@ const config = require('../util/config');
 const firebase = require('firebase');
 firebase.initializeApp(config);
 
-const { validateSignupData, validateLoginData } = require('../util/validators');
+const {
+  validateSignupData,
+  validateLoginData,
+  reduceUserDetails,
+} = require('../util/validators');
 const { runInNewContext } = require('vm');
 
 // --------------------------  SIGN UP --------------------------------
@@ -36,6 +40,7 @@ exports.signUp = (req, res) => {
       }
     })
     .then((data) => {
+      // data -> User credentials
       userId = data.user.uid;
       return data.user.getIdToken();
     })
@@ -78,6 +83,7 @@ exports.login = (req, res) => {
     .auth()
     .signInWithEmailAndPassword(user.email, user.password)
     .then((data) => {
+      // data -> User credentials
       return data.user.getIdToken();
     })
     .then((token) => {
@@ -92,6 +98,48 @@ exports.login = (req, res) => {
       } else {
         return res.status(500).json({ error: err.code });
       }
+    });
+};
+
+// ------------------------------------ ADD USER DETAILS ----------------------
+exports.addUserDetails = (req, res) => {
+  let userDetails = reduceUserDetails(req.body);
+
+  db.doc(`/users/${req.user.handle}`)
+    .update(userDetails)
+    .then(() => {
+      return res.json({ message: 'Details added successfully' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// ------------------------------------ GET AUTHENTICATED USER DETAILS  ----------------------
+exports.getAuthenticatedUser = (req, res) => {
+  let userData = {};
+  db.doc(`/users/${req.user.handle}`)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userData.credentials = doc.data();
+        return db
+          .collection('likes')
+          .where('userHandle', '==', req.user.handle)
+          .get();
+      }
+    })
+    .then((data) => {
+      userData.likes = [];
+      data.forEach((doc) => {
+        userData.likes.push(doc.data());
+      });
+      return res.json(userData);
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
 
