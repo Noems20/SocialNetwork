@@ -126,3 +126,63 @@ exports.createNotificationOnComment = functions.firestore
       })
       .catch((err) => console.error(err));
   });
+
+// ----------------------------------------- CHANGE USER IMAGE ON POSTS WHEN USER CHANGES IMAGE --------------
+exports.onUserImageChange = functions.firestore
+  .document('/users/{userId}')
+  .onUpdate((change) => {
+    console.log(change.before.data());
+    console.log(change.after.data());
+    if (change.before.data().imageUrl !== change.after.data().imageUrl) {
+      console.log('image has changed');
+      const batch = db.batch();
+      return db
+        .collection('screams') //REFERENCIA DE COLECCION DE POSTS
+        .where('userHandle', '==', change.before.data().handle)
+        .get() //SNAPSHOTS DE POSTS
+        .then((data) => {
+          data.forEach((doc) => {
+            const scream = db.doc(`/screams/${doc.id}`); //REFERENCIA DE POST
+            batch.update(scream, { userImage: change.after.data().imageUrl });
+          });
+          return batch.commit();
+        });
+    } else return true;
+  });
+
+// ----------------------------------------- DELETE LIKES, NOTIFICATIONS, AND COMENTS WHEN POST DELETED --------------
+exports.onScreamDelete = functions.firestore
+  .document('/screams/{screamId}')
+  .onDelete((snapshot, context) => {
+    const screamId = context.params.screamId;
+    const batch = db.batch();
+    return db
+      .collection('comments') //REFERENCIA DE COMENTARIOS
+      .where('screamId', '==', screamId)
+      .get() // OBTENEMOS LAS SNAPSHOTS DE LOS COMENTARIOS CON LA MISMA screamId
+      .then((data) => {
+        data.forEach((doc) => {
+          // ELIMINAMOS LOS COMENTARIOS
+          batch.delete(db.doc(`/comments/${doc.id}`));
+        });
+        return db.collection('likes').where('screamId', '==', screamId).get(); // OBTENEMOS LAS SNAPSHOTS DE LOS LIKES CON LA MISMA screamId
+      })
+      .then((data) => {
+        data.forEach((doc) => {
+          // ELIMINAMOS LOS LIKES
+          batch.delete(db.doc(`/likes/${doc.id}`));
+        });
+        return db
+          .collection('notifications')
+          .where('screamId', '==', screamId)
+          .get(); // OBTENEMOS LAS SNAPSHOTS DE LAS NOTIFICACIONES CON LA MISMA screamId
+      })
+      .then((data) => {
+        data.forEach((doc) => {
+          // ELIMINAMOS LAS NOTIFICACIONES
+          batch.delete(db.doc(`/notifications/${doc.id}`));
+        });
+        return batch.commit();
+      })
+      .catch((err) => console.error(err));
+  });
