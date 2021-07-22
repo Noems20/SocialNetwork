@@ -10,8 +10,7 @@ const {
   validateLoginData,
   reduceUserDetails,
 } = require('../util/validators');
-const { runInNewContext } = require('vm');
-
+const { user } = require('firebase-functions/lib/providers/auth');
 // --------------------------  SIGN UP --------------------------------
 exports.signUp = (req, res) => {
   const newUser = {
@@ -63,7 +62,9 @@ exports.signUp = (req, res) => {
       if (err.code === 'auth/email-already-in-use') {
         return res.status(400).json({ email: 'Email is already in use' });
       } else {
-        return res.status(500).json({ error: err.code });
+        return res
+          .status(500)
+          .json({ gemeral: 'Something went wrong, please try again' });
       }
     });
 };
@@ -91,13 +92,15 @@ exports.login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.code === 'auth/wrong-password') {
-        return res
-          .status(403)
-          .json({ general: 'Wrong credentials, please try again' });
-      } else {
-        return res.status(500).json({ error: err.code });
-      }
+      // auth/wrong-password
+      // auth/user-not-found
+      // if (err.code === 'auth/wrong-password') {
+      return res
+        .status(403)
+        .json({ general: 'Wrong credentials, please try again' });
+      // } else {
+      //   return res.status(500).json({ error: err.code });
+      // }
     });
 };
 
@@ -116,15 +119,54 @@ exports.addUserDetails = (req, res) => {
     });
 };
 
-// ------------------------------------ GET AUTHENTICATED USER DETAILS  ----------------------
+// ------------------------------------ GET ANY USER DETAILS (PUBLIC) ----------------------
+exports.getUserDetails = (req, res) => {
+  let userData = {};
+  db.doc(`/users/${req.params.handle}`) // GET USER DOCUMENT
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userData.user = doc.data();
+        return db //GET USER POSTS
+          .collection('screams')
+          .where('userHandle', '==', req.params.handle)
+          .orderBy('createdAt', 'desc')
+          .get();
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    })
+    .then((data) => {
+      userData.screams = [];
+      data.forEach((doc) => {
+        // RETURN SCREAMS INFO AND USER INFO
+        userData.screams.push({
+          body: doc.data().body,
+          createdAt: doc.data().createdAt,
+          userHandle: doc.data().userHandle,
+          userImage: doc.data().userImage,
+          likeCount: doc.data().likeCount,
+          commentCount: doc.data().body,
+          screamId: doc.id,
+        });
+      });
+      return res.json(userData);
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// ------------------------------------ GET AUTHENTICATED USER DETAILS (OWN) ----------------------
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};
-  db.doc(`/users/${req.user.handle}`)
+  db.doc(`/users/${req.user.handle}`) // OBTENER USUARIO
     .get()
     .then((doc) => {
       if (doc.exists) {
         userData.credentials = doc.data();
-        return db
+        return db // OBTENER LIKES DEL USUARIO
           .collection('likes')
           .where('userHandle', '==', req.user.handle)
           .get();
@@ -133,7 +175,29 @@ exports.getAuthenticatedUser = (req, res) => {
     .then((data) => {
       userData.likes = [];
       data.forEach((doc) => {
+        // AÑDIR LIKES DEL USUARIO A userData
         userData.likes.push(doc.data());
+      });
+      return db // OBTENER NOTIFICACIONES DEL USUARIO
+        .collection('notifications')
+        .where('recipient', '==', req.user.handle)
+        .orderBy('createdAt', 'desc')
+        .limit(10)
+        .get();
+    })
+    .then((data) => {
+      userData.notifications = [];
+      data.forEach((doc) => {
+        // AÑDIR NOTIFICACIONES DEL USUARIO A userData
+        userData.notifications.push({
+          recipient: doc.data().recipient,
+          sender: doc.data().sender,
+          read: doc.data().read,
+          screamId: doc.data().screamId,
+          type: doc.data().type,
+          createdAt: doc.data().createdAt,
+          notificationId: doc.id,
+        });
       });
       return res.json(userData);
     })
@@ -196,4 +260,23 @@ exports.uploadImage = (req, res) => {
       });
   });
   busboy.end(req.rawBody);
+};
+
+// ------------------------------------- MARK NOTIFICATION READ ----------------------
+
+exports.markNotificationsRead = (req, res) => {
+  let batch = db.batch();
+  req.body.forEach((notificationId) => {
+    const notification = db.doc(`/notifications/${notificationId}`); // Referencia a documento .get nos da acceso a snapshot -> snapshot.data()
+    batch.update(notification, { read: true });
+  });
+  batch
+    .commit()
+    .then(() => {
+      return res.json({ message: 'Notifications marked read' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
 };
