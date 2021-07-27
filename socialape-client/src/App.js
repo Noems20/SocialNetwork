@@ -7,6 +7,11 @@ import {
 } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 
+// Redux
+import { Provider } from 'react-redux';
+import store from './redux/store';
+
+// MUI
 import ThemeProvider from '@material-ui/styles/ThemeProvider';
 import { createTheme } from '@material-ui/core';
 import themeFile from './util/theme';
@@ -36,24 +41,28 @@ if (token) {
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Router>
-        <Navbar />
-        <div className='container'>
-          <Switch>
-            <Route exact path='/' component={Home} />
-            <Route
-              exact
-              path='/login'
-              render={() => (authenticated ? <Redirect to='/' /> : <Login />)}
-            />
-            <Route
-              exact
-              path='/signup'
-              render={() => (authenticated ? <Redirect to='/' /> : <Signup />)}
-            />
-          </Switch>
-        </div>
-      </Router>
+      <Provider store={store}>
+        <Router>
+          <Navbar />
+          <div className='container'>
+            <Switch>
+              <Route exact path='/' component={Home} />
+              <Route
+                exact
+                path='/login'
+                render={() => (authenticated ? <Redirect to='/' /> : <Login />)}
+              />
+              <Route
+                exact
+                path='/signup'
+                render={() =>
+                  authenticated ? <Redirect to='/' /> : <Signup />
+                }
+              />
+            </Switch>
+          </div>
+        </Router>
+      </Provider>
     </ThemeProvider>
   );
 }
