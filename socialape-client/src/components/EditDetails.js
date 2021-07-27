@@ -67,7 +67,7 @@ const EditDetails = ({ credentials, classes, editUserDetails }) => {
   return (
     <>
       <CustomButton
-        title='Edit details'
+        tip='Edit details'
         placement='top'
         onClick={handleOpen}
         btnClassName={classes.button}

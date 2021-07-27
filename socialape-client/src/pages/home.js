@@ -1,27 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
+import PropTypes from 'prop-types';
+
+// Redux
+import { connect } from 'react-redux';
+import { getScreams } from '../redux/actions/dataActions';
 
 //Components
 import Scream from '../components/Scream';
 import Profile from '../components/Profile';
 
-const Home = () => {
-  const [screams, setScreams] = useState(null);
-
+const Home = ({ getScreams, data: { screams, loading } }) => {
   useEffect(() => {
-    axios
-      .get('/screams')
-      .then((res) => {
-        console.log(res.data);
-        setScreams(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [setScreams]);
+    getScreams();
+  }, [getScreams]);
 
-  let recentScreamMarkup = screams ? (
+  let recentScreamMarkup = !loading ? (
     screams.map((scream) => <Scream key={scream.screamId} scream={scream} />)
   ) : (
     <p>Loading...</p>
@@ -39,4 +33,13 @@ const Home = () => {
   );
 };
 
-export default Home;
+Home.propTypes = {
+  data: PropTypes.object.isRequired,
+  getScreams: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  data: state.data,
+});
+
+export default connect(mapStateToProps, { getScreams })(Home);
