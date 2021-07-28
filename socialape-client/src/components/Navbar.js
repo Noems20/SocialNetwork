@@ -6,14 +6,15 @@ import CustomButton from '../util/CustomButton';
 //Redux
 import { connect } from 'react-redux';
 
-//Material UI
+// Components
+import PostScream from './PostScream';
+
+// Material UI
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 
 // Icons
-
-import AddIcon from '@material-ui/icons/Add';
 import HomeIcon from '@material-ui/icons/Home';
 import Notifications from '@material-ui/icons/Notifications';
 
@@ -23,9 +24,7 @@ const Navbar = ({ authenticated }) => {
       <Toolbar className='nav-container'>
         {authenticated ? (
           <>
-            <CustomButton tip='Post a scream'>
-              <AddIcon color='secondary' />
-            </CustomButton>
+            <PostScream />
             <Link to='/'>
               <CustomButton tip='Home'>
                 <HomeIcon color='secondary' />

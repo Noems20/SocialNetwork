@@ -4,6 +4,7 @@ import {
   UNLIKE_SCREAM,
   LOADING_DATA,
   DELETE_SCREAM,
+  POST_SCREAM,
 } from '../types';
 
 const initialState = {
@@ -45,6 +46,11 @@ const dataReducer = (state = initialState, action) => {
         screams: [...mutatedScreams],
       };
     }
+    case POST_SCREAM:
+      return {
+        ...state,
+        screams: [action.payload, ...state.screams],
+      };
     default:
       return state;
   }
