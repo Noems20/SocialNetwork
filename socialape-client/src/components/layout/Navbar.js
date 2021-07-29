@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 
 // Components
 import PostScream from '../scream/PostScream';
+import Notifications from './Notifications';
 
 // Material UI
 import AppBar from '@material-ui/core/AppBar';
@@ -16,7 +17,6 @@ import Button from '@material-ui/core/Button';
 
 // Icons
 import HomeIcon from '@material-ui/icons/Home';
-import Notifications from '@material-ui/icons/Notifications';
 
 const Navbar = ({ authenticated }) => {
   return (
@@ -30,9 +30,7 @@ const Navbar = ({ authenticated }) => {
                 <HomeIcon color='secondary' />
               </CustomButton>
             </Link>
-            <CustomButton tip='Notifications'>
-              <Notifications color='secondary' />
-            </CustomButton>
+            <Notifications />
           </>
         ) : (
           <>

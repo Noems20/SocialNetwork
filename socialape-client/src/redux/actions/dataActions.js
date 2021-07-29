@@ -25,7 +25,7 @@ export const getScreams = () => (dispatch) => {
         payload: res.data,
       });
     })
-    .catch((err) => {
+    .catch(() => {
       dispatch({
         type: SET_SCREAMS,
         payload: [],
@@ -135,7 +135,7 @@ export const getUserData = (userHandle) => (dispatch) => {
     .catch(() => {
       dispatch({
         type: SET_SCREAMS,
-        payload: null,
+        payload: [],
       });
     });
 };

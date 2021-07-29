@@ -16,21 +16,35 @@ import Grid from '@material-ui/core/Grid';
 
 const User = ({ match, getUserData, data: { screams, loading } }) => {
   const [profile, setProfile] = useState(null);
+  const [screamIdParam, setScreamIdParam] = useState(null);
 
   const handle = match.params.handle;
+  const screamId = match.params.screamId;
+
   useEffect(() => {
+    if (screamId) {
+      setScreamIdParam(screamId);
+    }
     getUserData(handle);
     axios.get(`/user/${handle}`).then((res) => {
       setProfile(res.data.user);
     });
-  }, [handle, getUserData]);
+  }, [handle, getUserData, screamId]);
 
   const screamsMarkup = loading ? (
-    <p>Loadin data...</p>
-  ) : screams === null ? (
+    <p>Loading data...</p>
+  ) : screams.length === 0 ? (
     <p>No screams for this user</p>
-  ) : (
+  ) : !screamIdParam ? (
     screams.map((scream) => <Scream key={scream.screamId} scream={scream} />)
+  ) : (
+    screams.map((scream) => {
+      if (scream.screamId !== screamIdParam) {
+        return <Scream key={scream.screamId} scream={scream} />;
+      } else {
+        return <Scream key={scream.screamId} scream={scream} openDialog />;
+      }
+    })
   );
 
   return (

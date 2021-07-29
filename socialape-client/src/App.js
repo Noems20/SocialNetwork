@@ -50,6 +50,11 @@ function App({ authenticated }) {
           <Route exact path='/users/:handle' component={User} />
           <Route
             exact
+            path='/users/:handle/scream/:screamId'
+            component={User}
+          />
+          <Route
+            exact
             path='/login'
             render={() => (authenticated ? <Redirect to='/' /> : <Login />)}
           />

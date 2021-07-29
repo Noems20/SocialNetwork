@@ -58,7 +58,6 @@ const PostScream = ({
       setUiErrors({});
     }
   }, [errors, loading]);
-
   const handleOpen = () => {
     setOpen(true);
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
@@ -70,21 +70,40 @@ const ScreamDialog = ({
   },
   UI: { loading },
   screamIdProp,
+  userHandleProp,
   getScream,
   classes,
   clearErrors,
+  openDialog,
 }) => {
   const [open, setOpen] = useState(false);
+  const [oldPath, setOldPath] = useState('');
+  // const [newPath, setNewPath] = useState('');
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
+    let oldPath = window.location.pathname;
+    const newPath = `/users/${userHandleProp}/scream/${screamIdProp}`;
+
+    if (oldPath === newPath) oldPath = `/users/${userHandleProp}`;
+
+    window.history.pushState(null, null, newPath);
     setOpen(true);
+    setOldPath(oldPath);
+    // setNewPath(newPath);
     getScream(screamIdProp);
-  };
+  }, [getScream, screamIdProp, userHandleProp]);
 
   const handleClose = () => {
+    window.history.pushState(null, null, oldPath);
     setOpen(false);
     clearErrors();
   };
+
+  useEffect(() => {
+    if (openDialog) {
+      handleOpen();
+    }
+  }, [openDialog, getScream, screamIdProp, handleOpen]);
 
   const dialogMarkup = loading ? (
     <div className={classes.spinnerDiv}>
@@ -159,6 +178,7 @@ ScreamDialog.propTypes = {
   screamIdProp: PropTypes.string.isRequired,
   scream: PropTypes.object.isRequired,
   UI: PropTypes.object.isRequired,
+  openDialog: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
