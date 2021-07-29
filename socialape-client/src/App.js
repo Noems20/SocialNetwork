@@ -16,7 +16,7 @@ import { createTheme } from '@material-ui/core';
 import themeFile from './util/theme';
 
 // Components
-import Navbar from './components/Navbar';
+import Navbar from './components/layout/Navbar';
 
 //Pages
 import Home from './pages/home';

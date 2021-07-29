@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 // Components
-import CustomButton from '../util/CustomButton';
+import CustomButton from '../../util/CustomButton';
 
 // Redux
 import { connect } from 'react-redux';
-import { postScream } from '../redux/actions/dataActions';
+import { clearErrors, postScream } from '../../redux/actions/dataActions';
 
 // MUI
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -38,7 +38,12 @@ const styles = (theme) => ({
   },
 });
 
-const PostScream = ({ UI: { loading, errors }, postScream, classes }) => {
+const PostScream = ({
+  UI: { loading, errors },
+  postScream,
+  clearErrors,
+  classes,
+}) => {
   const [body, setBody] = useState('');
   const [open, setOpen] = useState(false);
   const [uiErrors, setUiErrors] = useState({});
@@ -49,7 +54,8 @@ const PostScream = ({ UI: { loading, errors }, postScream, classes }) => {
     }
     if (!errors && !loading) {
       setBody('');
-      handleClose();
+      setOpen(false);
+      setUiErrors({});
     }
   }, [errors, loading]);
 
@@ -59,6 +65,7 @@ const PostScream = ({ UI: { loading, errors }, postScream, classes }) => {
   const handleClose = () => {
     setOpen(false);
     setUiErrors({});
+    clearErrors();
   };
 
   const handleSubmit = (event) => {
@@ -80,7 +87,7 @@ const PostScream = ({ UI: { loading, errors }, postScream, classes }) => {
         <CustomButton
           tip='Close'
           onClick={handleClose}
-          btnClassName={classes.closeButton}
+          tipClassName={classes.closeButton}
         >
           <CloseIcon />
         </CustomButton>
@@ -124,6 +131,7 @@ const PostScream = ({ UI: { loading, errors }, postScream, classes }) => {
 
 PostScream.propTypes = {
   postScream: PropTypes.func.isRequired,
+  clearErrors: PropTypes.func.isRequired,
   UI: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
 };
@@ -132,6 +140,6 @@ const mapStateToProps = (state) => ({
   UI: state.UI,
 });
 
-export default connect(mapStateToProps, { postScream })(
+export default connect(mapStateToProps, { postScream, clearErrors })(
   withStyles(styles)(PostScream)
 );

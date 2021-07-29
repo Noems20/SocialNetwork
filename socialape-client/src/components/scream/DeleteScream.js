@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 
 // Redux
 import { connect } from 'react-redux';
-import { deleteScream } from '../redux/actions/dataActions';
+import { deleteScream } from '../../redux/actions/dataActions';
 
 // Components
-import CustomButton from '../util/CustomButton';
+import CustomButton from '../../util/CustomButton';
 
 //MUI
 import withStyles from '@material-ui/styles/withStyles';

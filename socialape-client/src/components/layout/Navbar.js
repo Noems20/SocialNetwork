@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import CustomButton from '../util/CustomButton';
+import CustomButton from '../../util/CustomButton';
 
 //Redux
 import { connect } from 'react-redux';
 
 // Components
-import PostScream from './PostScream';
+import PostScream from '../scream/PostScream';
 
 // Material UI
 import AppBar from '@material-ui/core/AppBar';
