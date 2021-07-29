@@ -2,6 +2,7 @@ import './App.css';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 // Redux
 
@@ -22,7 +23,7 @@ import Navbar from './components/layout/Navbar';
 import Home from './pages/home';
 import Login from './pages/login';
 import Signup from './pages/signup';
-import axios from 'axios';
+import User from './pages/user';
 
 const theme = createTheme(themeFile);
 
@@ -46,6 +47,7 @@ function App({ authenticated }) {
       <div className='container'>
         <Switch>
           <Route exact path='/' component={Home} />
+          <Route exact path='/users/:handle' component={User} />
           <Route
             exact
             path='/login'
