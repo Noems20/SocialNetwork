@@ -22,7 +22,6 @@ const themeFile = {
     },
     image: {
       margin: '20px auto 20px auto',
-      height: '100px',
     },
     pageTitle: {
       margin: '10px auto 10px auto',
@@ -31,14 +30,13 @@ const themeFile = {
       margin: '10px auto 10px auto',
     },
     button: {
-      marginBottom: 20,
       marginTop: 20,
       position: 'relative',
     },
     customError: {
-      marginTop: 10,
       color: 'red',
       fontSize: '0.8rem',
+      marginTop: 10,
     },
     progress: {
       position: 'absolute',
@@ -78,7 +76,7 @@ const themeFile = {
           verticalAlign: 'middle',
         },
         '& a': {
-          color: '#00bcd4',
+          color: '#e63946',
         },
       },
       '& hr': {

@@ -83,7 +83,7 @@ const Scream = ({
         <Typography variant='body2' color='textSecondary'>
           {dayjs(createdAt).fromNow()}
         </Typography>
-        <Typography variant='body1' color='textSecondary'>
+        <Typography variant='body1' color='textPrimary'>
           {body}
         </Typography>
         <LikeButton screamId={screamId} />
